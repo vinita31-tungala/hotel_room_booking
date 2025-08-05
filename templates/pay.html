@@ -1,0 +1,13 @@
+<!-- templates/pay.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Confirm Payment</h2>
+
+<p>You are about to pay ₹{{ booking.room.price }} for Room {{ booking.room.room_number }} ({{ booking.room.room_type }}).</p>
+
+<form method="POST">
+    <button type="submit" class="btn btn-success">Pay with PhonePe</button>
+    <a href="{{ url_for('my_bookings') }}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

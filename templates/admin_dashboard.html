@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Welcome to the Admin Dashboard</h2>
+
+<!-- Room Addition Form -->
+<h3>Add New Room</h3>
+<form method="POST">
+    <input type="text" name="room_number" placeholder="Room Number" required>
+    <input type="text" name="room_type" placeholder="Room Type" required>
+    <input type="number" name="capacity" placeholder="Capacity" required>
+    <input type="text" name="amenities" placeholder="Amenities (comma-separated)" required>
+    <input type="number" step="0.01" name="price" placeholder="Price (₹)" required>
+    <button type="submit">Add Room</button>
+</form>
+
+<hr>
+
+<!-- All Rooms Table -->
+<h3>All Rooms</h3>
+{% if rooms %}
+<table border="1" cellpadding="8" cellspacing="0">
+    <tr>
+        <th>Room Number</th>
+        <th>Type</th>
+        <th>Price (₹)</th>
+        <th>Capacity</th>
+        <th>Amenities</th>
+        <th>Availability</th>
+        <th>Action</th>
+    </tr>
+    {% for room in rooms %}
+    <tr>
+        <td>{{ room.room_number }}</td>
+        <td>{{ room.room_type }}</td>
+        <td>{{ room.price }}</td>
+        <td>{{ room.capacity }}</td>
+        <td>{{ room.amenities }}</td>
+        <td>{{ 'Yes' if room.is_available else 'No' }}</td>
+        <td><a href="{{ url_for('delete_room', room_id=room.id) }}" onclick="return confirm('Are you sure you want to delete this room?');">Delete</a></td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p>No rooms found.</p>
+{% endif %}
+
+<hr>
+
+<!-- Booking Overview -->
+<h3>Bookings Overview</h3>
+<p><strong>Total Revenue:</strong> ₹{{ revenue }}</p>
+
+{% if bookings %}
+<table border="1" cellpadding="8" cellspacing="0">
+    <tr>
+        <th>User</th>
+        <th>Room</th>
+        <th>Check-In</th>
+        <th>Check-Out</th>
+        <th>Status</th>
+        <th>Payment</th>
+    </tr>
+    {% for b in bookings %}
+    <tr>
+        <td>{{ b.user.username }}</td>
+        <td>{{ b.room.room_number }}</td>
+        <td>{{ b.check_in.strftime('%Y-%m-%d') }}</td>
+        <td>{{ b.check_out.strftime('%Y-%m-%d') }}</td>
+        <td>{{ 'Cancelled' if b.is_cancelled else 'Active' }}</td>
+        <td>{{ b.payment_status }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p>No bookings available.</p>
+{% endif %}
+
+{% endblock %}
+

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Payment</title>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+  <h3>Pay for Room {{ booking.room.room_number }}</h3>
+  <button id="rzp-button">Pay Now</button>
+
+  <script>
+    var options = {
+      "key": "{{ key_id }}",
+      "amount": "{{ razorpay_order['amount'] }}",
+      "currency": "INR",
+      "name": "Hotel Booking",
+      "description": "Room Payment",
+      "order_id": "{{ razorpay_order['id'] }}",
+      "handler": function (response){
+        alert('Payment Successful! Payment ID: ' + response.razorpay_payment_id);
+        window.location.href = "{{ url_for('my_bookings') }}";
+      },
+      "prefill": {
+        "name": "{{ current_user.username }}",
+      },
+      "theme": {
+        "color": "#3399cc"
+      }
+    };
+    var rzp1 = new Razorpay(options);
+    document.getElementById('rzp-button').onclick = function(e){
+      rzp1.open();
+      e.preventDefault();
+    }
+  </script>
+</body>
+</html>

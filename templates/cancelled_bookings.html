@@ -1,0 +1,36 @@
+<!-- cancelled_bookings.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Cancelled Bookings</h2>
+
+{% if bookings %}
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Room Number</th>
+            <th>Room Type</th>
+            <th>Price</th>
+            <th>Check-In</th>
+            <th>Check-Out</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for booking in bookings %}
+        <tr>
+            <td>{{ booking.room.room_number }}</td>
+            <td>{{ booking.room.room_type }}</td>
+            <td>₹{{ booking.room.price }}</td>
+            <td>{{ booking.check_in }}</td>
+            <td>{{ booking.check_out }}</td>
+            <td><span class="text-danger">Cancelled</span></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+    <p>You have no cancelled bookings.</p>
+{% endif %}
+
+{% endblock %}

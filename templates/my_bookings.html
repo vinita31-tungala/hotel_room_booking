@@ -1,0 +1,54 @@
+<!-- templates/my_bookings.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>My Bookings</h2>
+
+{% if bookings %}
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Room Number</th>
+            <th>Room Type</th>
+            <th>Price</th>
+            <th>Check-In</th>
+            <th>Check-Out</th>
+            <th>Payment</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for booking in bookings %}
+        <tr>
+            <td>{{ booking.room.room_number }}</td>
+            <td>{{ booking.room.room_type }}</td>
+            <td>₹{{ booking.room.price }}</td>
+            <td>{{ booking.check_in }}</td>
+            <td>{{ booking.check_out }}</td>
+            <td>
+                {% if booking.payment_status == 'paid' %}
+                    <span class="badge bg-success">Paid</span>
+                {% else %}
+                    <form action="{{ url_for('pay', booking_id=booking.id) }}" method="GET" style="display:inline;">
+                        <button type="submit" class="btn btn-primary btn-sm">Pay Now</button>
+                    </form>
+                {% endif %}
+            </td>
+            <td>
+                <form action="{{ url_for('delete_booking', booking_id=booking.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this booking?');" style="display:inline;">
+                    <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+    <p>You have no bookings at the moment.</p>
+{% endif %}
+
+{% endblock %}
+
+
+
+
