@@ -1,36 +1,45 @@
 # Room Images Directory
 
-This directory is designed to store room images for the hotel booking system.
+This directory contains high-quality room images for the hotel booking system.
 
 ## Current Implementation
 
-The application currently uses CSS-generated background images for room types:
-- Single rooms: Coral gradient with bed icon
-- Double rooms: Teal gradient with twin bed icons  
-- Deluxe rooms: Purple gradient with luxury indicators
-- Suite rooms: Warm gradient with premium amenities
+The application now uses real room photographs downloaded from Unsplash:
+- `single-room.jpg` - Elegant single room with modern furnishing
+- `double-room.jpg` - Spacious double room with twin beds
+- `deluxe-room.jpg` - Luxury deluxe room with premium amenities
+- `suite-room.jpg` - Premium suite with sophisticated design
 
-## Adding Real Images
+## Image Details
 
-To replace the CSS placeholders with real room photos:
+All images are:
+- **Format**: JPG
+- **Resolution**: 800x600 pixels (optimized for web)
+- **Quality**: High-resolution professional photography
+- **Source**: Unsplash (royalty-free)
+- **Size**: Optimized for fast loading (60-100KB each)
 
-1. Add high-quality room images (recommended: 800x600 pixels) to this directory
-2. Name them according to room types:
+## Replacing Images
+
+To replace any room image:
+
+1. Replace the corresponding file in this directory
+2. Maintain the same filename format:
    - `single-room.jpg` - for Single rooms
    - `double-room.jpg` - for Double rooms  
    - `deluxe-room.jpg` - for Deluxe rooms
    - `suite-room.jpg` - for Suite rooms
 
-3. Update the `rooms.html` template to use actual images instead of CSS classes:
-   ```html
-   <img src="{{ url_for('static', filename='images/rooms/' + room.image) }}" 
-        alt="{{ room.room_type }} Room" class="room-image">
-   ```
+3. **Recommended specifications**:
+   - Format: JPG, PNG, or WebP
+   - Size: 800x600 pixels (4:3 aspect ratio)
+   - File size: Under 500KB for optimal loading
+   - Quality: High resolution, well-lit room photos
 
-4. Adjust the CSS accordingly to style the `<img>` elements instead of background images.
+## Technical Implementation
 
-## Image Requirements
-- Format: JPG, PNG, or WebP
-- Size: 800x600 pixels (4:3 aspect ratio)
-- File size: Under 500KB for optimal loading
-- Quality: High resolution, well-lit room photos
+The images are displayed using the `<img>` tag with:
+- `object-fit: cover` for proper aspect ratio
+- Hover zoom effects for interactivity
+- Responsive design for all screen sizes
+- Lazy loading for performance optimization

@@ -1,5 +1,5 @@
 import os
-from datetime import datetime
+from datetime import datetime, date
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
@@ -28,6 +28,12 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)  # Length for hash
     is_admin = db.Column(db.Boolean, default=False)
+    phone = db.Column(db.String(15), nullable=True)
+    first_name = db.Column(db.String(50), nullable=True)
+    last_name = db.Column(db.String(50), nullable=True)
+    date_of_birth = db.Column(db.Date, nullable=True)
+    address = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Room(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -73,31 +79,104 @@ def dashboard():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        username = request.form['username']
-        email = request.form['email']
+        # Get form data
+        username = request.form['username'].strip()
+        email = request.form['email'].strip()
         password = request.form['password']
+        confirm_password = request.form['confirm_password']
         role = request.form.get('role')
+        first_name = request.form.get('first_name', '').strip()
+        last_name = request.form.get('last_name', '').strip()
+        phone = request.form.get('phone', '').strip()
+        address = request.form.get('address', '').strip()
+        date_of_birth_str = request.form.get('date_of_birth', '')
 
+        # Validation
+        errors = []
+        
+        # Required field validation
+        if not all([username, email, password, confirm_password, role, first_name, last_name]):
+            errors.append('Please fill in all required fields.')
+        
+        # Password confirmation validation
+        if password != confirm_password:
+            errors.append('Passwords do not match.')
+        
+        # Password length validation
+        if len(password) < 6:
+            errors.append('Password must be at least 6 characters long.')
+        
+        # Email validation
+        import re
+        email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        if not re.match(email_pattern, email):
+            errors.append('Please enter a valid email address.')
+        
+        # Check for existing users
         if User.query.filter_by(email=email).first():
-            flash('Email already registered')
-            return redirect(url_for('register'))
-
+            errors.append('Email already registered. Please use a different email.')
+        
         if User.query.filter_by(username=username).first():
-            flash('Username already exists')
-            return redirect(url_for('register'))
+            errors.append('Username already exists. Please choose a different username.')
+        
+        # Phone validation (if provided)
+        if phone:
+            phone_pattern = r'^[\+]?[1-9][\d]{0,15}$'
+            # Remove spaces and dashes for validation
+            phone_clean = phone.replace(' ', '').replace('-', '')
+            if not re.match(phone_pattern, phone_clean):
+                errors.append('Please enter a valid phone number.')
+        
+        # Date of birth validation
+        date_of_birth = None
+        if date_of_birth_str:
+            try:
+                date_of_birth = datetime.strptime(date_of_birth_str, '%Y-%m-%d').date()
+                # Check if user is at least 18 years old
+                today = datetime.now().date()
+                age = today.year - date_of_birth.year - ((today.month, today.day) < (date_of_birth.month, date_of_birth.day))
+                if age < 18:
+                    errors.append('You must be at least 18 years old to register.')
+            except ValueError:
+                errors.append('Please enter a valid date of birth.')
+        
+        if errors:
+            for error in errors:
+                flash(error, 'error')
+            return render_template('register.html')
 
-        hashed_password = generate_password_hash(password)  # Default method is 'pbkdf2:sha256'
-
+        # Create new user
+        hashed_password = generate_password_hash(password)
         is_admin = True if role == 'admin' else False
-        new_user = User(username=username, email=email, password=hashed_password, is_admin=is_admin)
-        db.session.add(new_user)
-        db.session.commit()
-        login_user(new_user)
-
-        if is_admin:
-            return redirect(url_for('admin_dashboard'))
-        else:
-            return redirect(url_for('user_dashboard'))
+        
+        new_user = User(
+            username=username,
+            email=email,
+            password=hashed_password,
+            is_admin=is_admin,
+            first_name=first_name,
+            last_name=last_name,
+            phone=phone if phone else None,
+            address=address if address else None,
+            date_of_birth=date_of_birth
+        )
+        
+        try:
+            db.session.add(new_user)
+            db.session.commit()
+            login_user(new_user)
+            
+            flash(f'Welcome {first_name}! Your account has been created successfully.', 'success')
+            
+            if is_admin:
+                return redirect(url_for('admin_dashboard'))
+            else:
+                return redirect(url_for('user_dashboard'))
+                
+        except Exception as e:
+            db.session.rollback()
+            flash('An error occurred while creating your account. Please try again.', 'error')
+            return render_template('register.html')
 
     return render_template('register.html')
 
