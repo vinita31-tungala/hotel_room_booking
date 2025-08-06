@@ -27,6 +27,9 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(100), unique=True, nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)  # Length for hash
+    phone = db.Column(db.String(15), nullable=True)
+    address = db.Column(db.Text, nullable=True)
+    state = db.Column(db.String(50), nullable=True)
     is_admin = db.Column(db.Boolean, default=False)
 
 class Room(db.Model):
@@ -76,7 +79,20 @@ def register():
         username = request.form['username']
         email = request.form['email']
         password = request.form['password']
+        confirm_password = request.form['confirm_password']
+        phone = request.form.get('phone', '')
+        address = request.form.get('address', '')
+        state = request.form.get('state', '')
         role = request.form.get('role')
+
+        # Validation
+        if password != confirm_password:
+            flash('Passwords do not match')
+            return redirect(url_for('register'))
+
+        if len(password) < 6:
+            flash('Password must be at least 6 characters long')
+            return redirect(url_for('register'))
 
         if User.query.filter_by(email=email).first():
             flash('Email already registered')
@@ -86,14 +102,27 @@ def register():
             flash('Username already exists')
             return redirect(url_for('register'))
 
+        if phone and User.query.filter_by(phone=phone).first():
+            flash('Phone number already registered')
+            return redirect(url_for('register'))
+
         hashed_password = generate_password_hash(password)  # Default method is 'pbkdf2:sha256'
 
         is_admin = True if role == 'admin' else False
-        new_user = User(username=username, email=email, password=hashed_password, is_admin=is_admin)
+        new_user = User(
+            username=username, 
+            email=email, 
+            password=hashed_password, 
+            phone=phone if phone else None,
+            address=address if address else None,
+            state=state if state else None,
+            is_admin=is_admin
+        )
         db.session.add(new_user)
         db.session.commit()
         login_user(new_user)
 
+        flash('Registration successful! Welcome to our hotel booking system.')
         if is_admin:
             return redirect(url_for('admin_dashboard'))
         else:

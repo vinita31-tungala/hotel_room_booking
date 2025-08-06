@@ -67,40 +67,17 @@ h1, h2, h4 {
 .room-image {
     width: 100%;
     height: 100%;
-    background-size: cover;
-    background-position: center;
-    position: relative;
+    object-fit: cover;
+    object-position: center;
     transition: transform 0.3s ease;
+    border-radius: 0;
 }
 
 .room-card:hover .room-image {
     transform: scale(1.05);
 }
 
-/* Room Type Background Images */
-.room-image-single {
-    background: linear-gradient(45deg, #FF6B6B, #4ECDC4),
-                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23FF6B6B"/><rect x="10" y="30" width="80" height="40" rx="5" fill="white" opacity="0.3"/></svg>');
-    background-blend-mode: overlay;
-}
-
-.room-image-double {
-    background: linear-gradient(45deg, #4ECDC4, #45B7D1),
-                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%234ECDC4"/><rect x="5" y="30" width="40" height="40" rx="5" fill="white" opacity="0.3"/><rect x="55" y="30" width="40" height="40" rx="5" fill="white" opacity="0.3"/></svg>');
-    background-blend-mode: overlay;
-}
-
-.room-image-deluxe {
-    background: linear-gradient(45deg, #667eea, #764ba2),
-                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23667eea"/><rect x="10" y="25" width="80" height="50" rx="5" fill="white" opacity="0.3"/><circle cx="20" cy="15" r="3" fill="gold" opacity="0.8"/><circle cx="80" cy="15" r="3" fill="gold" opacity="0.8"/></svg>');
-    background-blend-mode: overlay;
-}
-
-.room-image-suite {
-    background: linear-gradient(45deg, #ffecd2, #fcb69f),
-                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23ffecd2"/><rect x="10" y="20" width="80" height="60" rx="8" fill="white" opacity="0.4"/><rect x="15" y="25" width="25" height="20" rx="3" fill="gold" opacity="0.6"/><rect x="60" y="25" width="25" height="20" rx="3" fill="gold" opacity="0.6"/></svg>');
-    background-blend-mode: overlay;
-}
+/* Room overlay and image enhancements */
 
 .room-overlay {
     position: absolute;
@@ -347,6 +324,353 @@ table {
     border-color: #f8f9fa;
 }
 
+/* Registration Page Styles */
+.register-container {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 0;
+}
+
+.register-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 3rem;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    width: 100%;
+    margin: 0 auto;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.register-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.register-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+}
+
+.register-subtitle {
+    color: #6c757d;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.register-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.form-group {
+    position: relative;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.form-label i::before {
+    font-family: 'Bootstrap Icons', sans-serif;
+}
+
+.icon-user::before { content: "👤"; }
+.icon-email::before { content: "📧"; }
+.icon-phone::before { content: "📱"; }
+.icon-location::before { content: "📍"; }
+.icon-address::before { content: "🏠"; }
+.icon-lock::before { content: "🔒"; }
+.icon-lock-check::before { content: "✅"; }
+.icon-role::before { content: "👔"; }
+
+.form-input {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.8);
+    position: relative;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #667eea;
+    background: white;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.1);
+}
+
+.form-focus-border {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    transition: width 0.3s ease;
+}
+
+.form-input:focus + .form-focus-border {
+    width: 100%;
+}
+
+.form-hint {
+    color: #6c757d;
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+    display: block;
+}
+
+/* Role Selection Styles */
+.role-group {
+    margin: 1rem 0;
+}
+
+.role-label {
+    margin-bottom: 1rem !important;
+}
+
+.role-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.role-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+}
+
+.role-card {
+    display: block;
+    padding: 1.5rem;
+    border: 2px solid #e9ecef;
+    border-radius: 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.role-card:hover {
+    border-color: #667eea;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.1);
+}
+
+.role-option input[type="radio"]:checked + .role-card {
+    border-color: #667eea;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+}
+
+.role-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.role-title {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.25rem;
+    font-size: 1.1rem;
+}
+
+.role-desc {
+    color: #6c757d;
+    font-size: 0.85rem;
+}
+
+/* Register Button */
+.register-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.register-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 35px rgba(102, 126, 234, 0.3);
+}
+
+.register-btn:active {
+    transform: translateY(0);
+}
+
+.btn-icon {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+}
+
+.register-btn:hover .btn-icon {
+    transform: translateX(5px);
+}
+
+/* Register Footer */
+.register-footer {
+    text-align: center;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e9ecef;
+}
+
+.register-footer p {
+    color: #6c757d;
+    margin: 0;
+}
+
+.login-link {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.login-link:hover {
+    color: #764ba2;
+    text-decoration: underline;
+}
+
+/* Login Page Styles */
+.login-container {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 0;
+}
+
+.login-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 3rem;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.1);
+    max-width: 450px;
+    width: 100%;
+    margin: 0 auto;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.login-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+}
+
+.login-subtitle {
+    color: #6c757d;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.login-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 35px rgba(102, 126, 234, 0.3);
+}
+
+.login-btn:active {
+    transform: translateY(0);
+}
+
+.login-btn:hover .btn-icon {
+    transform: translateX(5px);
+}
+
+.login-footer {
+    text-align: center;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e9ecef;
+}
+
+.login-footer p {
+    color: #6c757d;
+    margin: 0;
+}
+
+.register-link {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.register-link:hover {
+    color: #764ba2;
+    text-decoration: underline;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .rooms-header h1 {
@@ -359,5 +683,32 @@ table {
     
     .room-content {
         padding: 20px;
+    }
+
+    .register-card {
+        margin: 1rem;
+        padding: 2rem;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .role-options {
+        grid-template-columns: 1fr;
+    }
+
+    .register-title {
+        font-size: 2rem;
+    }
+
+    .login-card {
+        margin: 1rem;
+        padding: 2rem;
+    }
+
+    .login-title {
+        font-size: 2rem;
     }
 }
