@@ -36,6 +36,7 @@ class Room(db.Model):
     price = db.Column(db.Float, nullable=False)
     capacity = db.Column(db.Integer, default=2)
     amenities = db.Column(db.String(200))
+    image = db.Column(db.String(100), default='default-room.jpg')
 
 class Booking(db.Model):
     id = db.Column(db.Integer, primary_key=True)
