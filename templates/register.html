@@ -1,25 +1,177 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Register</h2>
-<form method="POST">
-  <label>Username:</label><br>
-  <input type="text" name="username" required><br>
+<div class="register-container">
+    <div class="register-card">
+        <div class="register-header">
+            <h2 class="register-title">Create Your Account</h2>
+            <p class="register-subtitle">Join us for an amazing hotel experience</p>
+        </div>
+        
+        <form method="POST" class="register-form" id="registerForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="username" class="form-label">
+                        <i class="icon-user"></i>
+                        Username
+                    </label>
+                    <input type="text" id="username" name="username" class="form-input" required>
+                    <span class="form-focus-border"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email" class="form-label">
+                        <i class="icon-email"></i>
+                        Email Address
+                    </label>
+                    <input type="email" id="email" name="email" class="form-input" required>
+                    <span class="form-focus-border"></span>
+                </div>
+            </div>
 
-  <label>Email:</label><br>
-  <input type="email" name="email" required><br>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="phone" class="form-label">
+                        <i class="icon-phone"></i>
+                        Phone Number
+                    </label>
+                    <input type="tel" id="phone" name="phone" class="form-input" pattern="[0-9]{10}" placeholder="1234567890">
+                    <span class="form-focus-border"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="state" class="form-label">
+                        <i class="icon-location"></i>
+                        State
+                    </label>
+                    <select id="state" name="state" class="form-input">
+                        <option value="">Select State</option>
+                        <option value="Andhra Pradesh">Andhra Pradesh</option>
+                        <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                        <option value="Assam">Assam</option>
+                        <option value="Bihar">Bihar</option>
+                        <option value="Chhattisgarh">Chhattisgarh</option>
+                        <option value="Goa">Goa</option>
+                        <option value="Gujarat">Gujarat</option>
+                        <option value="Haryana">Haryana</option>
+                        <option value="Himachal Pradesh">Himachal Pradesh</option>
+                        <option value="Jharkhand">Jharkhand</option>
+                        <option value="Karnataka">Karnataka</option>
+                        <option value="Kerala">Kerala</option>
+                        <option value="Madhya Pradesh">Madhya Pradesh</option>
+                        <option value="Maharashtra">Maharashtra</option>
+                        <option value="Manipur">Manipur</option>
+                        <option value="Meghalaya">Meghalaya</option>
+                        <option value="Mizoram">Mizoram</option>
+                        <option value="Nagaland">Nagaland</option>
+                        <option value="Odisha">Odisha</option>
+                        <option value="Punjab">Punjab</option>
+                        <option value="Rajasthan">Rajasthan</option>
+                        <option value="Sikkim">Sikkim</option>
+                        <option value="Tamil Nadu">Tamil Nadu</option>
+                        <option value="Telangana">Telangana</option>
+                        <option value="Tripura">Tripura</option>
+                        <option value="Uttar Pradesh">Uttar Pradesh</option>
+                        <option value="Uttarakhand">Uttarakhand</option>
+                        <option value="West Bengal">West Bengal</option>
+                        <option value="Delhi">Delhi</option>
+                    </select>
+                    <span class="form-focus-border"></span>
+                </div>
+            </div>
 
-  <label>Password:</label><br>
-  <input type="password" name="password" required><br>
+            <div class="form-group full-width">
+                <label for="address" class="form-label">
+                    <i class="icon-address"></i>
+                    Address
+                </label>
+                <textarea id="address" name="address" class="form-input" rows="3" placeholder="Enter your full address"></textarea>
+                <span class="form-focus-border"></span>
+            </div>
 
-  <label>Role:</label><br>
-  <select name="role" required>
-    <option value="">-- Select Role --</option>
-    <option value="admin">Admin</option>
-    <option value="user">User</option>
-  </select><br><br>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="password" class="form-label">
+                        <i class="icon-lock"></i>
+                        Password
+                    </label>
+                    <input type="password" id="password" name="password" class="form-input" required minlength="6">
+                    <span class="form-focus-border"></span>
+                    <small class="form-hint">At least 6 characters</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirm_password" class="form-label">
+                        <i class="icon-lock-check"></i>
+                        Confirm Password
+                    </label>
+                    <input type="password" id="confirm_password" name="confirm_password" class="form-input" required>
+                    <span class="form-focus-border"></span>
+                </div>
+            </div>
 
-  <input type="submit" value="Register">
-</form>
+            <div class="form-group role-group">
+                <label class="form-label role-label">
+                    <i class="icon-role"></i>
+                    Account Type
+                </label>
+                <div class="role-options">
+                    <div class="role-option">
+                        <input type="radio" id="user" name="role" value="user" required>
+                        <label for="user" class="role-card">
+                            <div class="role-icon">👤</div>
+                            <div class="role-title">Guest</div>
+                            <div class="role-desc">Book rooms and manage reservations</div>
+                        </label>
+                    </div>
+                    <div class="role-option">
+                        <input type="radio" id="admin" name="role" value="admin" required>
+                        <label for="admin" class="role-card">
+                            <div class="role-icon">👨‍💼</div>
+                            <div class="role-title">Admin</div>
+                            <div class="role-desc">Manage hotel and bookings</div>
+                        </label>
+                    </div>
+                </div>
+            </div>
 
+            <button type="submit" class="register-btn">
+                <span class="btn-text">Create Account</span>
+                <span class="btn-icon">→</span>
+            </button>
+        </form>
+
+        <div class="register-footer">
+            <p>Already have an account? <a href="{{ url_for('login') }}" class="login-link">Sign in here</a></p>
+        </div>
+    </div>
+</div>
+
+<script>
+// Form validation and enhancement
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('registerForm');
+    const password = document.getElementById('password');
+    const confirmPassword = document.getElementById('confirm_password');
+    
+    // Real-time password confirmation
+    confirmPassword.addEventListener('input', function() {
+        if (password.value !== confirmPassword.value) {
+            confirmPassword.setCustomValidity('Passwords do not match');
+        } else {
+            confirmPassword.setCustomValidity('');
+        }
+    });
+    
+    // Phone number formatting
+    const phoneInput = document.getElementById('phone');
+    phoneInput.addEventListener('input', function() {
+        let value = this.value.replace(/\D/g, '');
+        if (value.length > 10) {
+            value = value.slice(0, 10);
+        }
+        this.value = value;
+    });
+});
+</script>
 {% endblock %}
 

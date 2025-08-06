@@ -11,10 +11,12 @@
             <div class="col-lg-4 col-md-6">
                 <div class="room-card h-100">
                     <div class="room-image-container">
-                        <div class="room-image room-image-{{ room.room_type.lower() }}">
-                            <div class="room-overlay">
-                                <div class="room-type-badge">{{ room.room_type }}</div>
-                            </div>
+                        <img src="{{ url_for('static', filename='images/rooms/' + room.room_type.lower() + '-room.jpg') }}" 
+                             alt="{{ room.room_type }} Room" 
+                             class="room-image"
+                             onerror="this.src='{{ url_for('static', filename='images/rooms/standard-room.jpg') }}'">
+                        <div class="room-overlay">
+                            <div class="room-type-badge">{{ room.room_type }}</div>
                         </div>
                         <div class="price-tag">
                             <span class="currency">₹</span>
