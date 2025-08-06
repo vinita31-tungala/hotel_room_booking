@@ -1,22 +1,69 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Available Rooms</h2>
-<div class="row">
+<div class="rooms-header text-center mb-5">
+    <h1 class="display-4 fw-bold text-gradient">Available Rooms</h1>
+    <p class="lead text-muted">Discover your perfect stay with our luxurious accommodations</p>
+</div>
+
+<div class="row g-4">
     {% if rooms %}
         {% for room in rooms %}
-            <div class="col-md-4">
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">Room {{ room.room_number }}</h5>
-                        <p>Type: {{ room.room_type }}</p>
-                        <p>Price: ₹{{ room.price }}</p>
-                        <a href="{{ url_for('book_room', room_id=room.id) }}" class="btn btn-primary">Book Now</a>
+            <div class="col-lg-4 col-md-6">
+                <div class="room-card h-100">
+                    <div class="room-image-container">
+                        <div class="room-image room-image-{{ room.room_type.lower() }}">
+                            <div class="room-overlay">
+                                <div class="room-type-badge">{{ room.room_type }}</div>
+                            </div>
+                        </div>
+                        <div class="price-tag">
+                            <span class="currency">₹</span>
+                            <span class="amount">{{ room.price }}</span>
+                            <span class="period">/night</span>
+                        </div>
+                    </div>
+                    
+                    <div class="room-content">
+                        <h3 class="room-title">Room {{ room.room_number }}</h3>
+                        <div class="room-details">
+                            <div class="detail-item">
+                                <i class="icon-home"></i>
+                                <span>{{ room.room_type }} Room</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="icon-users"></i>
+                                <span>Up to {{ room.capacity }} guests</span>
+                            </div>
+                            {% if room.amenities %}
+                            <div class="amenities-section">
+                                <h5 class="amenities-title">Amenities</h5>
+                                <div class="amenities-list">
+                                    {% for amenity in room.amenities.split(', ') %}
+                                        <span class="amenity-tag">{{ amenity }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="room-actions">
+                            <a href="{{ url_for('book_room', room_id=room.id) }}" class="btn-book-now">
+                                <span class="btn-text">Book Now</span>
+                                <span class="btn-icon">→</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         {% endfor %}
     {% else %}
-        <p>No rooms available at the moment.</p>
+        <div class="col-12">
+            <div class="no-rooms-container text-center py-5">
+                <div class="no-rooms-icon">🏨</div>
+                <h3 class="no-rooms-title">No rooms available</h3>
+                <p class="no-rooms-text">Please check back later for available accommodations.</p>
+            </div>
+        </div>
     {% endif %}
 </div>
 {% endblock %}
