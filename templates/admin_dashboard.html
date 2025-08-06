@@ -1,6 +1,15 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Welcome to the Admin Dashboard</h2>
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h2 class="dashboard-title">Welcome to the Admin Dashboard</h2>
+        <div class="dashboard-actions">
+            <a href="{{ url_for('update_profile') }}" class="btn-update-profile">
+                <i class="icon-user"></i>
+                <span>Update Profile</span>
+            </a>
+        </div>
+    </div>
 
 <!-- Room Addition Form -->
 <h3>Add New Room</h3>
@@ -74,6 +83,7 @@
 {% else %}
 <p>No bookings available.</p>
 {% endif %}
+</div>
 
 {% endblock %}
 

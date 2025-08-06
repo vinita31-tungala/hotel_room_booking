@@ -1,9 +1,15 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Welcome, {{ current_user.username }}</h2>
-
-<!-- Profile Update Link -->
-<p><a href="{{ url_for('update_profile') }}">Update Profile</a></p>
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h2 class="dashboard-title">Welcome, {{ current_user.username }}</h2>
+        <div class="dashboard-actions">
+            <a href="{{ url_for('update_profile') }}" class="btn-update-profile">
+                <i class="icon-user"></i>
+                <span>Update Profile</span>
+            </a>
+        </div>
+    </div>
 
 <hr>
 
@@ -31,6 +37,7 @@
 {% else %}
 <p>You have no bookings yet.</p>
 {% endif %}
+</div>
 
 {% endblock %}
 

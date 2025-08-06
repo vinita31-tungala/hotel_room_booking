@@ -321,6 +321,9 @@ def update_profile():
     if request.method == 'POST':
         current_user.username = request.form['username']
         current_user.email = request.form['email']
+        current_user.phone = request.form.get('phone', '')
+        current_user.address = request.form.get('address', '')
+        current_user.state = request.form.get('state', '')
         db.session.commit()
         flash('Profile updated successfully.')
         return redirect(url_for('user_dashboard'))

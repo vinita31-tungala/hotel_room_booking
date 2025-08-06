@@ -2,50 +2,93 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>My Bookings</h2>
+<div class="bookings-container">
+    <div class="bookings-header">
+        <h2 class="bookings-title">My Bookings</h2>
+        <p class="bookings-subtitle">Manage your hotel reservations</p>
+    </div>
 
-{% if bookings %}
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Room Number</th>
-            <th>Room Type</th>
-            <th>Price</th>
-            <th>Check-In</th>
-            <th>Check-Out</th>
-            <th>Payment</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
+    {% if bookings %}
+    <div class="bookings-grid">
         {% for booking in bookings %}
-        <tr>
-            <td>{{ booking.room.room_number }}</td>
-            <td>{{ booking.room.room_type }}</td>
-            <td>₹{{ booking.room.price }}</td>
-            <td>{{ booking.check_in }}</td>
-            <td>{{ booking.check_out }}</td>
-            <td>
+        <div class="booking-card">
+            <div class="booking-card-header">
+                <div class="room-info">
+                    <h3 class="room-number">Room {{ booking.room.room_number }}</h3>
+                    <span class="room-type">{{ booking.room.room_type }}</span>
+                </div>
+                <div class="booking-price">
+                    <span class="currency">₹</span>
+                    <span class="amount">{{ booking.room.price }}</span>
+                    <span class="period">/night</span>
+                </div>
+            </div>
+            
+            <div class="booking-details">
+                <div class="detail-row">
+                    <div class="detail-item">
+                        <i class="icon-calendar"></i>
+                        <div class="detail-content">
+                            <span class="detail-label">Check-in</span>
+                            <span class="detail-value">{{ booking.check_in }}</span>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <i class="icon-calendar"></i>
+                        <div class="detail-content">
+                            <span class="detail-label">Check-out</span>
+                            <span class="detail-value">{{ booking.check_out }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="booking-status">
                 {% if booking.payment_status == 'paid' %}
-                    <span class="badge bg-success">Paid</span>
+                    <span class="status-badge paid">
+                        <i class="icon-check"></i>
+                        Paid
+                    </span>
                 {% else %}
-                    <form action="{{ url_for('pay', booking_id=booking.id) }}" method="GET" style="display:inline;">
-                        <button type="submit" class="btn btn-primary btn-sm">Pay Now</button>
+                    <span class="status-badge pending">
+                        <i class="icon-clock"></i>
+                        Payment Pending
+                    </span>
+                {% endif %}
+            </div>
+            
+            <div class="booking-actions">
+                {% if booking.payment_status != 'paid' %}
+                    <form action="{{ url_for('pay', booking_id=booking.id) }}" method="GET" class="action-form">
+                        <button type="submit" class="btn-action btn-pay">
+                            <i class="icon-payment"></i>
+                            <span>Pay Now</span>
+                        </button>
                     </form>
                 {% endif %}
-            </td>
-            <td>
-                <form action="{{ url_for('delete_booking', booking_id=booking.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this booking?');" style="display:inline;">
-                    <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
+                <form action="{{ url_for('delete_booking', booking_id=booking.id) }}" method="POST" 
+                      onsubmit="return confirm('Are you sure you want to cancel this booking?');" class="action-form">
+                    <button type="submit" class="btn-action btn-cancel">
+                        <i class="icon-close"></i>
+                        <span>Cancel</span>
+                    </button>
                 </form>
-            </td>
-        </tr>
+            </div>
+        </div>
         {% endfor %}
-    </tbody>
-</table>
-{% else %}
-    <p>You have no bookings at the moment.</p>
-{% endif %}
+    </div>
+    {% else %}
+    <div class="no-bookings-container">
+        <div class="no-bookings-icon">🏨</div>
+        <h3 class="no-bookings-title">No Bookings Yet</h3>
+        <p class="no-bookings-text">You haven't made any reservations yet. Browse our rooms and make your first booking!</p>
+        <a href="{{ url_for('rooms') }}" class="btn-browse-rooms">
+            <span>Browse Rooms</span>
+            <i class="icon-arrow"></i>
+        </a>
+    </div>
+    {% endif %}
+</div>
 
 {% endblock %}
 
