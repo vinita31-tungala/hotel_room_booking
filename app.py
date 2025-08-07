@@ -1,6 +1,10 @@
 import os
 from datetime import datetime
-from flask import Flask, render_template, request, redirect, url_for, flash
+import pandas as pd
+import qrcode
+from io import BytesIO
+import base64
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, make_response
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -40,6 +44,7 @@ class Room(db.Model):
     capacity = db.Column(db.Integer, default=2)
     amenities = db.Column(db.String(200))
     image = db.Column(db.String(100), default='default-room.jpg')
+    has_ac = db.Column(db.Boolean, default=True)  # True for A/C, False for Non-A/C
 
 class Booking(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -52,6 +57,14 @@ class Booking(db.Model):
 
     user = db.relationship('User', backref='bookings')
     room = db.relationship('Room', backref='bookings')
+
+class AdminConfig(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    hotel_name = db.Column(db.String(100), default='Grand Hotel')
+    contact_email = db.Column(db.String(100), default='admin@grandhotel.com')
+    contact_phone = db.Column(db.String(20), default='+91-9876543210')
+    address = db.Column(db.Text, default='123 Hotel Street, City, State - 123456')
+    upi_id = db.Column(db.String(100), default='grandhotel@paytm')  # For QR code payments
 
 # ==================== User Loader ====================
 
@@ -154,7 +167,14 @@ def admin_dashboard():
 
     rooms = Room.query.all()
     bookings = Booking.query.all()
-    total_revenue = sum([b.room.price for b in bookings if b.payment_status == 'paid'])
+    total_revenue = sum([b.room.price * (b.check_out - b.check_in).days for b in bookings if b.payment_status == 'paid'])
+    
+    # Get or create admin config
+    admin_config = AdminConfig.query.first()
+    if not admin_config:
+        admin_config = AdminConfig()
+        db.session.add(admin_config)
+        db.session.commit()
 
     if request.method == 'POST':
         room_number = request.form['room_number']
@@ -162,14 +182,15 @@ def admin_dashboard():
         price = float(request.form['price'])
         capacity = int(request.form['capacity'])
         amenities = request.form['amenities']
+        has_ac = 'has_ac' in request.form  # Checkbox value
 
         room = Room(room_number=room_number, room_type=room_type, price=price,
-                    capacity=capacity, amenities=amenities)
+                    capacity=capacity, amenities=amenities, has_ac=has_ac)
         db.session.add(room)
         db.session.commit()
         flash('Room added successfully!')
 
-    return render_template('admin_dashboard.html', rooms=rooms, bookings=bookings, revenue=total_revenue)
+    return render_template('admin_dashboard.html', rooms=rooms, bookings=bookings, revenue=total_revenue, admin_config=admin_config)
 
 @app.route('/user_dashboard')
 @login_required
@@ -190,6 +211,7 @@ def view_rooms():
     min_price = request.args.get('min_price', 0, type=float)
     max_price = request.args.get('max_price', 10000, type=float)
     capacity = request.args.get('capacity', type=int)
+    ac_filter = request.args.get('ac_filter')  # 'ac', 'non_ac', or None
     check_in_str = request.args.get('check_in')
     check_out_str = request.args.get('check_out')
 
@@ -199,6 +221,10 @@ def view_rooms():
         query = query.filter_by(room_type=room_type)
     if capacity:
         query = query.filter(Room.capacity >= capacity)
+    if ac_filter == 'ac':
+        query = query.filter_by(has_ac=True)
+    elif ac_filter == 'non_ac':
+        query = query.filter_by(has_ac=False)
     query = query.filter(Room.price >= min_price, Room.price <= max_price)
 
     rooms = query.all()
@@ -308,12 +334,29 @@ def pay(booking_id):
     if booking.is_cancelled:
         flash('Cannot pay for a cancelled booking.')
         return redirect(url_for('my_bookings'))
+    
+    # Calculate total amount
+    total_nights = (booking.check_out - booking.check_in).days
+    total_amount = booking.room.price * total_nights
+    
+    # Generate QR code for payment
+    qr_code = generate_payment_qr(booking_id, total_amount)
+    
+    # Get admin contact info
+    admin_config = AdminConfig.query.first()
+    if not admin_config:
+        admin_config = AdminConfig()
+        db.session.add(admin_config)
+        db.session.commit()
+    
     if request.method == 'POST':
         booking.payment_status = 'paid'
         db.session.commit()
         flash('Payment successful! Thank you.')
         return redirect(url_for('my_bookings'))
-    return render_template('pay.html', booking=booking)
+    
+    return render_template('pay.html', booking=booking, total_amount=total_amount, 
+                         qr_code=qr_code, admin_config=admin_config)
 
 @app.route('/update_profile', methods=['GET', 'POST'])
 @login_required
@@ -328,6 +371,73 @@ def update_profile():
         flash('Profile updated successfully.')
         return redirect(url_for('user_dashboard'))
     return render_template('update_profile.html')
+
+@app.route('/export_bookings')
+@login_required
+def export_bookings():
+    if not current_user.is_admin:
+        flash("Access denied.")
+        return redirect(url_for('home'))
+    
+    bookings = Booking.query.all()
+    booking_data = []
+    
+    for booking in bookings:
+        booking_data.append({
+            'Booking ID': booking.id,
+            'Customer Name': booking.user.username,
+            'Customer Email': booking.user.email,
+            'Customer Phone': booking.user.phone or 'N/A',
+            'Room Number': booking.room.room_number,
+            'Room Type': booking.room.room_type,
+            'AC/Non-AC': 'A/C' if booking.room.has_ac else 'Non-A/C',
+            'Check-in Date': booking.check_in.strftime('%Y-%m-%d'),
+            'Check-out Date': booking.check_out.strftime('%Y-%m-%d'),
+            'Price per Night': booking.room.price,
+            'Total Nights': (booking.check_out - booking.check_in).days,
+            'Total Amount': booking.room.price * (booking.check_out - booking.check_in).days,
+            'Payment Status': booking.payment_status,
+            'Booking Status': 'Cancelled' if booking.is_cancelled else 'Active'
+        })
+    
+    df = pd.DataFrame(booking_data)
+    
+    # Create Excel file in memory
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        df.to_excel(writer, sheet_name='Bookings', index=False)
+    
+    output.seek(0)
+    
+    response = make_response(output.read())
+    response.headers['Content-Type'] = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    response.headers['Content-Disposition'] = f'attachment; filename=hotel_bookings_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
+    
+    return response
+
+def generate_payment_qr(booking_id, amount):
+    """Generate QR code for payment"""
+    admin_config = AdminConfig.query.first()
+    if not admin_config:
+        # Create default admin config if not exists
+        admin_config = AdminConfig()
+        db.session.add(admin_config)
+        db.session.commit()
+    
+    # UPI payment string format
+    upi_string = f"upi://pay?pa={admin_config.upi_id}&pn={admin_config.hotel_name}&am={amount}&cu=INR&tn=Booking%20ID%20{booking_id}"
+    
+    qr = qrcode.QRCode(version=1, box_size=10, border=5)
+    qr.add_data(upi_string)
+    qr.make(fit=True)
+    
+    img = qr.make_image(fill_color="black", back_color="white")
+    buffer = BytesIO()
+    img.save(buffer, format='PNG')
+    buffer.seek(0)
+    
+    qr_code_base64 = base64.b64encode(buffer.read()).decode()
+    return qr_code_base64
 
 if __name__ == '__main__':
     with app.app_context():

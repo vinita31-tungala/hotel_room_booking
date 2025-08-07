@@ -2,12 +2,69 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>Confirm Payment</h2>
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="qr-payment-section">
+            <h2 class="mb-4">Payment for Room {{ booking.room.room_number }}</h2>
+            
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Booking Details</h5>
+                            <p><strong>Room:</strong> {{ booking.room.room_number }} ({{ booking.room.room_type }})</p>
+                            <p><strong>A/C:</strong> 
+                                <span class="badge {% if booking.room.has_ac %}bg-primary{% else %}bg-warning{% endif %}">
+                                    {% if booking.room.has_ac %}A/C{% else %}Non-A/C{% endif %}
+                                </span>
+                            </p>
+                            <p><strong>Check-in:</strong> {{ booking.check_in.strftime('%d %B, %Y') }}</p>
+                            <p><strong>Check-out:</strong> {{ booking.check_out.strftime('%d %B, %Y') }}</p>
+                            <p><strong>Nights:</strong> {{ (booking.check_out - booking.check_in).days }}</p>
+                            <div class="payment-amount">₹{{ total_amount }}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Scan to Pay</h5>
+                            <div class="qr-code-container">
+                                <img src="data:image/png;base64,{{ qr_code }}" alt="Payment QR Code">
+                            </div>
+                            <p class="payment-instructions">
+                                Scan this QR code with any UPI app<br>
+                                (PhonePe, Google Pay, Paytm, etc.)
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-<p>You are about to pay ₹{{ booking.room.price }} for Room {{ booking.room.room_number }} ({{ booking.room.room_type }}).</p>
+            <div class="admin-contact-info mb-4">
+                <h5 class="contact-header">Contact Information</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="contact-item">
+                            <span class="contact-icon">📧</span>
+                            {{ admin_config.contact_email }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="contact-item">
+                            <span class="contact-icon">📞</span>
+                            {{ admin_config.contact_phone }}
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-<form method="POST">
-    <button type="submit" class="btn btn-success">Pay with PhonePe</button>
-    <a href="{{ url_for('my_bookings') }}" class="btn btn-secondary">Cancel</a>
-</form>
+            <form method="POST" class="text-center">
+                <button type="submit" class="btn btn-success btn-lg me-3">✓ Mark as Paid</button>
+                <a href="{{ url_for('my_bookings') }}" class="btn btn-secondary btn-lg">← Back to Bookings</a>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}
