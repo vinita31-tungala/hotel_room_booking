@@ -25,13 +25,13 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('dashboard') }}">User Dashboard</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('view_rooms') }}">Available Rooms</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('my_bookings') }}">My Bookings</a>
+                        </li>
                     {% endif %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('view_rooms') }}">Available Rooms</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('my_bookings') }}">My Bookings</a>
-                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
                     </li>

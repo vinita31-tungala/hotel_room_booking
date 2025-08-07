@@ -196,7 +196,15 @@ def admin_dashboard():
 @login_required
 def user_dashboard():
     bookings = Booking.query.filter_by(user_id=current_user.id).all()
-    return render_template('user_dashboard.html', bookings=bookings)
+    
+    # Get hotel contact information
+    admin_config = AdminConfig.query.first()
+    if not admin_config:
+        admin_config = AdminConfig()
+        db.session.add(admin_config)
+        db.session.commit()
+    
+    return render_template('user_dashboard.html', bookings=bookings, admin_config=admin_config)
 
 @app.route('/logout')
 @login_required
@@ -207,6 +215,11 @@ def logout():
 @app.route('/rooms')
 @login_required
 def view_rooms():
+    # Prevent admins from viewing rooms for booking
+    if current_user.is_admin:
+        flash('Admins manage rooms from the admin dashboard.')
+        return redirect(url_for('dashboard'))
+    
     room_type = request.args.get('type')
     min_price = request.args.get('min_price', 0, type=float)
     max_price = request.args.get('max_price', 10000, type=float)
@@ -257,6 +270,11 @@ def view_rooms():
 @app.route('/book/<int:room_id>', methods=['GET', 'POST'])
 @login_required
 def book_room(room_id):
+    # Prevent admins from booking rooms
+    if current_user.is_admin:
+        flash('Admins cannot book rooms. Only customers can make bookings.')
+        return redirect(url_for('dashboard'))
+    
     room = Room.query.get_or_404(room_id)
     if request.method == 'POST':
         check_in = request.form['check_in']
@@ -303,6 +321,11 @@ def delete_room(room_id):
 @app.route('/my_bookings')
 @login_required
 def my_bookings():
+    # Prevent admins from accessing my bookings
+    if current_user.is_admin:
+        flash('Admins do not have personal bookings.')
+        return redirect(url_for('dashboard'))
+    
     bookings = Booking.query.filter_by(user_id=current_user.id, is_cancelled=False).all()
     return render_template('my_bookings.html', bookings=bookings)
 
@@ -388,16 +411,21 @@ def export_bookings():
             'Customer Name': booking.user.username,
             'Customer Email': booking.user.email,
             'Customer Phone': booking.user.phone or 'N/A',
+            'Customer Address': booking.user.address or 'N/A',
+            'Customer State': booking.user.state or 'N/A',
             'Room Number': booking.room.room_number,
             'Room Type': booking.room.room_type,
             'AC/Non-AC': 'A/C' if booking.room.has_ac else 'Non-A/C',
+            'Room Capacity': booking.room.capacity,
+            'Room Amenities': booking.room.amenities or 'N/A',
             'Check-in Date': booking.check_in.strftime('%Y-%m-%d'),
             'Check-out Date': booking.check_out.strftime('%Y-%m-%d'),
-            'Price per Night': booking.room.price,
+            'Price per Night (₹)': booking.room.price,
             'Total Nights': (booking.check_out - booking.check_in).days,
-            'Total Amount': booking.room.price * (booking.check_out - booking.check_in).days,
+            'Total Amount (₹)': booking.room.price * (booking.check_out - booking.check_in).days,
             'Payment Status': booking.payment_status,
-            'Booking Status': 'Cancelled' if booking.is_cancelled else 'Active'
+            'Booking Status': 'Cancelled' if booking.is_cancelled else 'Active',
+            'Booking Date': booking.check_in.strftime('%Y-%m-%d %H:%M:%S') if hasattr(booking, 'created_at') else 'N/A'
         })
     
     df = pd.DataFrame(booking_data)
