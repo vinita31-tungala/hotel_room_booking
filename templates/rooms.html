@@ -5,6 +5,20 @@
     <p class="lead text-muted">Discover your perfect stay with our luxurious accommodations</p>
 </div>
 
+<!-- Room Filter Section -->
+<div class="room-filter-section">
+    <h3 class="filter-title">Filter Rooms</h3>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="filter-option">
+                <a href="{{ url_for('view_rooms') }}" class="filter-btn {% if not request.args.get('ac_filter') %}active{% endif %}">All Rooms</a>
+                <a href="{{ url_for('view_rooms', ac_filter='ac') }}" class="filter-btn {% if request.args.get('ac_filter') == 'ac' %}active{% endif %}">A/C Rooms</a>
+                <a href="{{ url_for('view_rooms', ac_filter='non_ac') }}" class="filter-btn {% if request.args.get('ac_filter') == 'non_ac' %}active{% endif %}">Non-A/C Rooms</a>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="row g-4">
     {% if rooms %}
         {% for room in rooms %}
@@ -17,6 +31,9 @@
                              onerror="this.src='{{ url_for('static', filename='images/rooms/standard-room.jpg') }}'">
                         <div class="room-overlay">
                             <div class="room-type-badge">{{ room.room_type }}</div>
+                            <div class="ac-badge {% if room.has_ac %}has-ac{% else %}non-ac{% endif %}">
+                                {% if room.has_ac %}A/C{% else %}Non-A/C{% endif %}
+                            </div>
                         </div>
                         <div class="price-tag">
                             <span class="currency">₹</span>
